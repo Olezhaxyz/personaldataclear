@@ -2,7 +2,7 @@ import flet as ft
 import psycopg2
 
 class Database:
-    def insert_record(self, last_name, first_name, middle_name, birth_year, phone_number):
+    def insert_record(self, table, last_name, first_name, middle_name, birth_year, phone_number):
         conn = psycopg2.connect(
             dbname="personal_db",
             user="postgres",
@@ -12,7 +12,7 @@ class Database:
         )
         cur = conn.cursor()
         cur.execute('''
-            INSERT INTO people (last_name, first_name, middle_name, birth_year, phone_number)
+            INSERT INTO '''+ table +''' (last_name, first_name, middle_name, birth_year, phone_number)
             VALUES (%s, %s, %s, %s, %s)
         ''', (last_name, first_name, middle_name, birth_year, phone_number))
         conn.commit()
@@ -29,6 +29,16 @@ class Database:
         cur = conn.cursor()
         cur.execute('''
             CREATE TABLE IF NOT EXISTS people (
+                id SERIAL PRIMARY KEY,
+                last_name VARCHAR(50),
+                first_name VARCHAR(50),
+                middle_name VARCHAR(50),
+                birth_year VARCHAR(8),
+                phone_number VARCHAR(20)
+            )
+        ''')
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS unpeople (
                 id SERIAL PRIMARY KEY,
                 last_name VARCHAR(50),
                 first_name VARCHAR(50),
@@ -82,10 +92,9 @@ class Database:
         return result  
     
         
-def main(page: ft.Page):
-    
+def main(page: ft.Page,):
     database = Database()
-            
+  
     def update_table():
         # Получаем все записи из базы данных
         records = database.fetch_all_records()
@@ -121,7 +130,7 @@ def main(page: ft.Page):
 
         database.create_table()
         # Запись данных в базу данных
-        database.insert_record(last_name=name, first_name=surname, middle_name=lastname, birth_year=birthday, phone_number=phone)
+        database.insert_record(table='people',last_name=name, first_name=surname, middle_name=lastname, birth_year=birthday, phone_number=phone)
 
         # Обновление текстового поля
         t.value = (
@@ -154,8 +163,6 @@ def main(page: ft.Page):
     def unpesronal_button(e):
         # Получаем все записи из базы данных
         records = database.fetch_all_records()
-        
- #       id_pers 
         count_id = database.get_count()
         print(count_id)
         shifted_data = shift_columns_down(records)
@@ -163,7 +170,7 @@ def main(page: ft.Page):
         for row in shifted_data:
             print(row)
             print("х")
-        
+            database.insert_record('unpeople', *row[1:])
         # Обновление данных в таблице
         update_table()
 
@@ -180,7 +187,8 @@ def main(page: ft.Page):
     b = ft.ElevatedButton(text="Add", on_click=button_clicked)
     un = ft.ElevatedButton(text="Uppersonal", on_click=unpesronal_button)
     update_table()
+    
     page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un)
-
+    
 # Запуск приложения
 ft.app(target=main)
