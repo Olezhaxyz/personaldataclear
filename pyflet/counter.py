@@ -185,10 +185,11 @@ def main(page: ft.Page):
     tb3 = ft.TextField(label="Lastname")
     tb4 = ft.TextField(label="Birthday")
     tb5 = ft.TextField(label="Phone")
-    b = ft.ElevatedButton(text="Add", on_click=button_clicked)
+    b = ft.FloatingActionButton(icon=ft.icons.ADD, on_click=button_clicked)
     un = ft.ElevatedButton(text="Uppersonal", on_click=unpesronal_button)
     update_table()
     page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un)
+    
         
     page.scroll = "always"
     page.update()
