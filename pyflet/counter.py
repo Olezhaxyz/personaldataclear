@@ -39,10 +39,78 @@ class Database:
         ''')
         conn.commit()
         conn.close()
-
+        
+    def fetch_all_records(self):
+        conn = psycopg2.connect(
+            dbname="personal_db",
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM people')
+        records = cur.fetchall()
+        conn.close()
+        return records    
+    
+    def get_count(self):
+        conn = psycopg2.connect(
+            dbname="personal_db",
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT count(id) from people')
+        count = cur.fetchone()[0]
+        conn.close()
+        return count 
+    def get_value(self, id, value):
+        conn = psycopg2.connect(
+            dbname="personal_db",
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT ' + value + ' from people where' + id)
+        result = cur.fetchone()[0]
+        conn.close()
+        return result  
+    
+        
 def main(page: ft.Page):
     
     database = Database()
+            
+    def update_table():
+        # Получаем все записи из базы данных
+        records = database.fetch_all_records()
+        # Очищаем текущую таблицу
+        table.rows.clear()
+        
+        for row_data in records:
+                cells = [ft.DataCell(ft.Text(str(cell))) for cell in row_data]
+                table.rows.append(ft.DataRow(cells=cells))
+
+    
+    table = ft.DataTable(
+        bgcolor="#4B0082",
+        border_radius=10,
+        columns=[
+            ft.DataColumn(ft.Text("ID")),
+            ft.DataColumn(ft.Text("Last Name")),
+            ft.DataColumn(ft.Text("First Name")),
+            ft.DataColumn(ft.Text("Middle Name")),
+            ft.DataColumn(ft.Text("Birth Year")),
+            ft.DataColumn(ft.Text("Phone Number")),
+        ],
+        rows=[],
+    )
+    
     def button_clicked(e):
         # Получение значений из текстовых полей
         name = tb1.value
@@ -64,7 +132,44 @@ def main(page: ft.Page):
             f"'{tb4.value}', "
             f"'{tb5.value}'."
         )
+        # Обновление данных в таблице
+        update_table()
+
+        # Обновление страницы
         page.update()
+
+    def shift_columns_down(data):
+        # Определяем сдвиги для каждой колонки
+        shifts = [0, 1, 3, 2, 1]
+
+        # Получаем количество строк и столбцов в данных
+        num_rows = len(data)
+        num_columns = len(data[0])
+
+        # Создаем новый список с сдвинутыми колонками вниз
+        shifted_data = [[data[(i - shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
+
+        return shifted_data
+
+    def unpesronal_button(e):
+        # Получаем все записи из базы данных
+        records = database.fetch_all_records()
+        
+ #       id_pers 
+        count_id = database.get_count()
+        print(count_id)
+        shifted_data = shift_columns_down(records)
+        # Вывод результатов
+        for row in shifted_data:
+            print(row)
+            print("х")
+        
+        # Обновление данных в таблице
+        update_table()
+
+        # Обновление страницы
+        page.update()
+
 
     t = ft.Text()
     tb1 = ft.TextField(label="Name")
@@ -72,9 +177,10 @@ def main(page: ft.Page):
     tb3 = ft.TextField(label="Lastname")
     tb4 = ft.TextField(label="Birthday")
     tb5 = ft.TextField(label="Phone")
-    b = ft.ElevatedButton(text="Submit", on_click=button_clicked)
-    
-    page.add(tb1, tb2, tb3, tb4, tb5, b, t)
+    b = ft.ElevatedButton(text="Add", on_click=button_clicked)
+    un = ft.ElevatedButton(text="Uppersonal", on_click=unpesronal_button)
+    update_table()
+    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un)
 
 # Запуск приложения
 ft.app(target=main)
