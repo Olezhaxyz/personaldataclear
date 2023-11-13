@@ -161,17 +161,41 @@ def main(page: ft.Page):
         shifted_data = [[data[(i - shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
 
         return shifted_data
+    
+    def shift_columns_up(data):
+        # Определяем сдвиги для каждой колонки
+        shifts = [-1, -2, -3, -1, 0]
+
+        # Получаем количество строк и столбцов в данных
+        num_rows = len(data)
+        num_columns = len(data[0])
+
+        # Создаем новый список с сдвинутыми колонками вниз
+        shifted_data = [[data[(i - shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
+
+        return shifted_data
 
     def unpesronal_button(e):
         # Получаем все записи из базы данных
-        records = database.fetch_all_records()
-        count_id = database.get_count()
-        print(count_id)
+        records = database.fetch_all_records('people')
+        
         shifted_data = shift_columns_down(records)
         # Вывод результатов
         for row in shifted_data:
-            print(row)
-            print("х")
+            database.insert_record('unpeople', *row[1:])
+        # Обновление данных в таблице
+        update_table(table2,'unpeople')
+
+        # Обновление страницы
+        page.update()
+        
+    def pesronal_button(e):
+        # Получаем все записи из базы данных
+        records = database.fetch_all_records('unpeople')
+        
+        shifted_data = shift_columns_up(records)
+        # Вывод результатов
+        for row in shifted_data:
             database.insert_record('unpeople', *row[1:])
         # Обновление данных в таблице
         update_table(table2,'unpeople')
@@ -187,7 +211,8 @@ def main(page: ft.Page):
     tb4 = ft.TextField(label="Birthday")
     tb5 = ft.TextField(label="Phone")
     b = ft.FloatingActionButton(icon=ft.icons.ADD, on_click=button_clicked)
-    un = ft.ElevatedButton(text="Uppersonal", on_click=unpesronal_button)
+    un = ft.ElevatedButton(text="Uppersonal", icon=ft.icons.SAFETY_CHECK, on_click=unpesronal_button)
+    not_un = ft.ElevatedButton(icon=ft.icons.SAFETY_DIVIDER, text="Personal", on_click=pesronal_button)
     tabs = ft.Tabs(
         selected_index=1,
         animation_duration=300,
@@ -201,7 +226,7 @@ def main(page: ft.Page):
     )
     update_table(table1,'people')
     update_table(table2,'unpeople')
-    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table1, un, tabs)
+    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table1, un, not_un, tabs)
     
         
     page.scroll = "always"
