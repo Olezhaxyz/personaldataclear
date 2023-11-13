@@ -187,8 +187,19 @@ def main(page: ft.Page):
     tb5 = ft.TextField(label="Phone")
     b = ft.FloatingActionButton(icon=ft.icons.ADD, on_click=button_clicked)
     un = ft.ElevatedButton(text="Uppersonal", on_click=unpesronal_button)
+    tabs = ft.Tabs(
+        selected_index=1,
+        animation_duration=300,
+        tabs=[
+            ft.Tab(
+                tab_content=ft.Icon(ft.icons.ACCOUNT_BOX),
+                content=table,
+            ),
+        ],
+        expand=1,
+    )
     update_table()
-    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un)
+    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un, tabs)
     
         
     page.scroll = "always"
