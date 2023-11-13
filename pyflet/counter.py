@@ -92,9 +92,9 @@ class Database:
         return result  
     
         
-def main(page: ft.Page,):
+def main(page: ft.Page):
     database = Database()
-  
+    
     def update_table():
         # Получаем все записи из базы данных
         records = database.fetch_all_records()
@@ -119,6 +119,7 @@ def main(page: ft.Page,):
         ],
         rows=[],
     )
+ 
     
     def button_clicked(e):
         # Получение значений из текстовых полей
@@ -187,8 +188,10 @@ def main(page: ft.Page,):
     b = ft.ElevatedButton(text="Add", on_click=button_clicked)
     un = ft.ElevatedButton(text="Uppersonal", on_click=unpesronal_button)
     update_table()
-    
     page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un)
+        
+    page.scroll = "always"
+    page.update()
     
 # Запуск приложения
 ft.app(target=main)
