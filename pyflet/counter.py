@@ -35,9 +35,7 @@ class Database:
                 middle_name VARCHAR(50),
                 birth_year VARCHAR(8),
                 phone_number VARCHAR(20)
-            )
-        ''')
-        cur.execute('''
+            );
             CREATE TABLE IF NOT EXISTS unpeople (
                 id SERIAL PRIMARY KEY,
                 last_name VARCHAR(50),
@@ -45,12 +43,12 @@ class Database:
                 middle_name VARCHAR(50),
                 birth_year VARCHAR(8),
                 phone_number VARCHAR(20)
-            )
+            );
         ''')
         conn.commit()
         conn.close()
         
-    def fetch_all_records(self):
+    def fetch_all_records(self, table_name):
         conn = psycopg2.connect(
             dbname="personal_db",
             user="postgres",
@@ -59,24 +57,11 @@ class Database:
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute('SELECT * FROM people')
+        cur.execute('SELECT * FROM ' + table_name)
         records = cur.fetchall()
         conn.close()
         return records    
     
-    def get_count(self):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
-        )
-        cur = conn.cursor()
-        cur.execute('SELECT count(id) from people')
-        count = cur.fetchone()[0]
-        conn.close()
-        return count 
     def get_value(self, id, value):
         conn = psycopg2.connect(
             dbname="personal_db",
@@ -95,18 +80,18 @@ class Database:
 def main(page: ft.Page):
     database = Database()
     
-    def update_table():
-        # Получаем все записи из базы данных
-        records = database.fetch_all_records()
+    database.create_table()
+    
+    def update_table(table, table_name):
         # Очищаем текущую таблицу
         table.rows.clear()
-        
+        records = database.fetch_all_records(table_name)
         for row_data in records:
-                cells = [ft.DataCell(ft.Text(str(cell))) for cell in row_data]
-                table.rows.append(ft.DataRow(cells=cells))
-
+            cells = [ft.DataCell(ft.Text(str(cell))) for cell in row_data]
+            table.rows.append(ft.DataRow(cells=cells))
     
-    table = ft.DataTable(
+    # Create the first table
+    table1 = ft.DataTable(
         bgcolor="#4B0082",
         border_radius=10,
         columns=[
@@ -119,6 +104,22 @@ def main(page: ft.Page):
         ],
         rows=[],
     )
+    
+    # Create the second table
+    table2 = ft.DataTable(
+        bgcolor="#008080",
+        border_radius=10,
+        columns=[
+            ft.DataColumn(ft.Text("ID")),
+            ft.DataColumn(ft.Text("Last Name")),
+            ft.DataColumn(ft.Text("First Name")),
+            ft.DataColumn(ft.Text("Middle Name")),
+            ft.DataColumn(ft.Text("Birth Year")),
+            ft.DataColumn(ft.Text("Phone Number")),
+        ],
+        rows=[],
+    )
+
  
     
     def button_clicked(e):
@@ -129,7 +130,7 @@ def main(page: ft.Page):
         birthday = tb4.value
         phone = tb5.value
 
-        database.create_table()
+        
         # Запись данных в базу данных
         database.insert_record(table='people',last_name=name, first_name=surname, middle_name=lastname, birth_year=birthday, phone_number=phone)
 
@@ -142,8 +143,8 @@ def main(page: ft.Page):
             f"'{tb4.value}', "
             f"'{tb5.value}'."
         )
-        # Обновление данных в таблице
-        update_table()
+        # Обновление данных в первой таблице
+        update_table(table1, 'people')
 
         # Обновление страницы
         page.update()
@@ -173,7 +174,7 @@ def main(page: ft.Page):
             print("х")
             database.insert_record('unpeople', *row[1:])
         # Обновление данных в таблице
-        update_table()
+        update_table(table2,'unpeople')
 
         # Обновление страницы
         page.update()
@@ -193,13 +194,14 @@ def main(page: ft.Page):
         tabs=[
             ft.Tab(
                 tab_content=ft.Icon(ft.icons.ACCOUNT_BOX),
-                content=table,
+                content=table2,
             ),
         ],
         expand=1,
     )
-    update_table()
-    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table, un, tabs)
+    update_table(table1,'people')
+    update_table(table2,'unpeople')
+    page.add(tb1, tb2, tb3, tb4, tb5, b, t, table1, un, tabs)
     
         
     page.scroll = "always"
