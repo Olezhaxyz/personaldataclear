@@ -44,10 +44,30 @@ class Database:
                 birth_year VARCHAR(8),
                 phone_number VARCHAR(20)
             );
+            INSERT INTO people (last_name, first_name, middle_name, birth_year, phone_number) 
+            VALUES
+                ('Last1', 'First1', 'Middle1', '20000101', '12346789'),
+                ('Last2', 'First2', 'Middle2', '19950215', '98765321'),
+                ('Last3', 'First3', 'Middle3', '19880825', '55555555'),
+                ('Last4', 'First4', 'Middle4', '19761210', '11111111'),
+                ('Last5', 'First5', 'Middle5', '19900520', '99999999');
         ''')
         conn.commit()
         conn.close()
-        
+
+    def drop_table(self, table_name):
+        conn = psycopg2.connect(
+            dbname="personal_db",
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432"
+            )
+        cur = conn.cursor()
+        cur.execute('drop table ' + table_name)
+        conn.commit()
+        conn.close()
+                
     def fetch_all_records(self, table_name):
         conn = psycopg2.connect(
             dbname="personal_db",
@@ -79,7 +99,6 @@ class Database:
         
 def main(page: ft.Page):
     database = Database()
-    
     database.create_table()
     
     def update_table(table, table_name):
@@ -159,7 +178,7 @@ def main(page: ft.Page):
 
         # Создаем новый список с сдвинутыми колонками вниз
         shifted_data = [[data[(i - shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
-
+        
         return shifted_data
     
     def shift_columns_up(data):
@@ -172,7 +191,7 @@ def main(page: ft.Page):
 
         # Создаем новый список с сдвинутыми колонками вверх
         shifted_data = [[data[(i + shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
-
+        
         return shifted_data
 
     def unpesronal_button(e):
@@ -185,7 +204,8 @@ def main(page: ft.Page):
             database.insert_record('unpeople', *row[1:])
         # Обновление данных в таблице
         update_table(table2,'unpeople')
-
+        database.drop_table('people')
+        
         # Обновление страницы
         page.update()
         
@@ -196,10 +216,10 @@ def main(page: ft.Page):
         shifted_data = shift_columns_up(records)
         # Вывод результатов
         for row in shifted_data:
-            database.insert_record('unpeople', *row[1:])
+            database.insert_record('people', *row[1:])
         # Обновление данных в таблице
-        update_table(table2,'unpeople')
-
+        update_table(table2,'people')
+        database.drop_table('unpeople')
         # Обновление страницы
         page.update()
 
