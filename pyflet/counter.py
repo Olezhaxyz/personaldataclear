@@ -1,15 +1,28 @@
 import flet as ft
 import psycopg2
+from decouple import config
+import os
+
+
+DB_NAME = config('DB_NAME')
+DB_USER = config('DB_USER')
+DB_PASSWORD = config('DB_PASSWORD')
+DB_HOST = config('DB_HOST')
+DB_PORT = config('DB_PORT')
+
 
 class Database:
-    def insert_record(self, table, last_name, first_name, middle_name, birth_year, phone_number):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
+    def get_connection(self):
+        return psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
         )
+        
+    def insert_record(self, table, last_name, first_name, middle_name, birth_year, phone_number):
+        conn = self.get_connection()
         cur = conn.cursor()
         cur.execute('''
             INSERT INTO '''+ table +''' (last_name, first_name, middle_name, birth_year, phone_number)
@@ -19,13 +32,7 @@ class Database:
         conn.close()
     
     def create_table(self):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
-            )
+        conn = self.get_connection()
         cur = conn.cursor()
         cur.execute('''
             CREATE TABLE IF NOT EXISTS people (
@@ -56,38 +63,20 @@ class Database:
         conn.close()
 
     def drop_table(self, table_name):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
-            )
+        conn = self.get_connection()
         cur = conn.cursor()
         cur.execute('drop table IF EXISTS ' + table_name)
         conn.commit()
         conn.close()
     def delete_on_table(self, table_name):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
-            )
+        conn = self.get_connection()
         cur = conn.cursor()
         cur.execute('Delete from ' + table_name)
         conn.commit()
         conn.close()
                        
     def fetch_all_records(self, table_name):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
-        )
+        conn = self.get_connection()
         cur = conn.cursor()
         cur.execute('SELECT * FROM ' + table_name)
         records = cur.fetchall()
@@ -95,13 +84,7 @@ class Database:
         return records    
     
     def get_value(self, id, value):
-        conn = psycopg2.connect(
-            dbname="personal_db",
-            user="postgres",
-            password="postgres",
-            host="127.0.0.1",
-            port="5432"
-        )
+        conn = self.get_connection()
         cur = conn.cursor()
         cur.execute('SELECT ' + value + ' from people where' + id)
         result = cur.fetchone()[0]
