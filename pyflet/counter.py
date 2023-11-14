@@ -67,7 +67,19 @@ class Database:
         cur.execute('drop table IF EXISTS ' + table_name)
         conn.commit()
         conn.close()
-                
+    def delete_on_table(self, table_name):
+        conn = psycopg2.connect(
+            dbname="personal_db",
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432"
+            )
+        cur = conn.cursor()
+        cur.execute('Delete from ' + table_name)
+        conn.commit()
+        conn.close()
+                       
     def fetch_all_records(self, table_name):
         conn = psycopg2.connect(
             dbname="personal_db",
@@ -198,6 +210,7 @@ def main(page: ft.Page):
         return shifted_data
 
     def unpesronal_button(e):
+        
         # Получаем все записи из базы данных
         records = database.fetch_all_records('people') 
         
@@ -207,9 +220,8 @@ def main(page: ft.Page):
             database.insert_record('unpeople', *row[1:])
         # Обновление данных в таблице
         update_table(table2,'unpeople')
-        database.drop_table('people')
-        
-        database.create_table()
+        database.delete_on_table('people')
+        update_table(table1,'people')
         
         # Обновление страницы
         page.update()
@@ -223,12 +235,11 @@ def main(page: ft.Page):
         for row in shifted_data:
             database.insert_record('people', *row[1:])
         # Обновление данных в таблице
-        update_table(table2,'people')
-        database.drop_table('unpeople')
+        update_table(table1,'people')
+        database.delete_on_table('unpeople')
+        
+        update_table(table2,'unpeople')
         # Обновление страницы
-        
-        database.create_table()
-        
         page.update()
 
 
