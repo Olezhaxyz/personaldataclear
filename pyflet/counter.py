@@ -164,14 +164,14 @@ def main(page: ft.Page):
     
     def shift_columns_up(data):
         # Определяем сдвиги для каждой колонки
-        shifts = [-1, -2, -3, -1, 0]
+        shifts = [0, 1, 3, 2, 1]
 
         # Получаем количество строк и столбцов в данных
         num_rows = len(data)
         num_columns = len(data[0])
 
-        # Создаем новый список с сдвинутыми колонками вниз
-        shifted_data = [[data[(i - shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
+        # Создаем новый список с сдвинутыми колонками вверх
+        shifted_data = [[data[(i + shifts[j % num_rows]) % num_rows][j] for j in range(num_columns)] for i in range(num_rows)]
 
         return shifted_data
 
