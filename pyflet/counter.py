@@ -185,8 +185,8 @@ def main(page: ft.Page):
 
     def shift_columns_down(data):
         # Определяем сдвиги для каждой колонки
-        shifts = [0, 1, 3, 2, 1]
-
+        shifts = [0, 1, 3, 2, 1, 5]
+        
         # Получаем количество строк и столбцов в данных
         num_rows = len(data)
         num_columns = len(data[0])
@@ -198,7 +198,7 @@ def main(page: ft.Page):
     
     def shift_columns_up(data):
         # Определяем сдвиги для каждой колонки
-        shifts = [0, 1, 3, 2, 1]
+        shifts = [0, 1, 3, 2, 1, 5]
 
         # Получаем количество строк и столбцов в данных
         num_rows = len(data)
