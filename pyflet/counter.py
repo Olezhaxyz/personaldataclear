@@ -64,7 +64,7 @@ class Database:
             port="5432"
             )
         cur = conn.cursor()
-        cur.execute('drop table ' + table_name)
+        cur.execute('drop table IF EXISTS ' + table_name)
         conn.commit()
         conn.close()
                 
@@ -99,6 +99,9 @@ class Database:
         
 def main(page: ft.Page):
     database = Database()
+    
+    database.drop_table('people')
+    database.drop_table('unpeople')
     database.create_table()
     
     def update_table(table, table_name):
@@ -196,7 +199,7 @@ def main(page: ft.Page):
 
     def unpesronal_button(e):
         # Получаем все записи из базы данных
-        records = database.fetch_all_records('people')
+        records = database.fetch_all_records('people') 
         
         shifted_data = shift_columns_down(records)
         # Вывод результатов
@@ -205,6 +208,8 @@ def main(page: ft.Page):
         # Обновление данных в таблице
         update_table(table2,'unpeople')
         database.drop_table('people')
+        
+        database.create_table()
         
         # Обновление страницы
         page.update()
@@ -221,6 +226,9 @@ def main(page: ft.Page):
         update_table(table2,'people')
         database.drop_table('unpeople')
         # Обновление страницы
+        
+        database.create_table()
+        
         page.update()
 
 
@@ -246,6 +254,7 @@ def main(page: ft.Page):
     )
     update_table(table1,'people')
     update_table(table2,'unpeople')
+    
     page.add(tb1, tb2, tb3, tb4, tb5, b, t, table1, un, not_un, tabs)
     
         
